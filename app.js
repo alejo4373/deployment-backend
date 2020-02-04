@@ -3,9 +3,23 @@ var express = require('express');
 var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
-var cors = require('cors')
 var session = require('express-session')
 var passport = require('./auth/passport')
+var cors = require('cors')
+var whitelist = ['http://localhost:3000', 'https://pedantic-jennings-89953a.netlify.com']
+var corsOptions = {
+  credentials: true,
+  origin: function (origin, callback) {
+    console.log(origin)
+    if (whitelist.includes(origin)) {
+      console.log('origin included');
+
+      callback(null, true)
+    } else {
+      callback(new Error('Not allowed by CORS'))
+    }
+  }
+}
 
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
@@ -13,7 +27,7 @@ var authRouter = require('./routes/auth');
 
 var app = express();
 
-app.use(cors())
+app.use(cors(corsOptions))
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
